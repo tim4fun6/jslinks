@@ -1,0 +1,4 @@
+#!/usr/bin/sed -f 
+/replace when publishing/,/end replace/ c\
+ <script src="out.js"></script>"
+

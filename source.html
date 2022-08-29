@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonts and CSS -->
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
+
+  <!-- Bootstrap 5 styles -->
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+  <!-- DataTable styles -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/staterestore/1.1.0/css/stateRestore.dataTables.css"/>
+  <link rel="stylesheet" type="text/css" href="colResize.css"/>
+  
+  <!-- our styles -->
+  <style type="text/css">
+    body {
+      padding: 20px;
+      font-family: 'Roboto', serif;
+      font-size: 10pt;
+    }
+
+    #links {
+      width: 100%;
+    }
+
+    tr.even {
+      background-color: #ccc;
+    }
+
+    th { 
+      min-width: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 5px;
+    }
+  </style>
+  <title>Recent Zoom Links on Telegram</title>
+</head>
+
+<body>
+  <h1>Recent Zoom Links on Telegram</h1>
+  <div id="progress"></div>
+
+  <div id="phoneNumberDialog" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="phoneNumberDialogLabel" aria-hidden="true" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="phoneNumberDialogLabel">Phone Number</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+        </div>
+        <div class="modal-body">
+          <form id="phoneForm">
+            <div class="form-group">
+              <label for="phoneNumber">Telegram Phone Number</label>
+              <input type="tel" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="+1 617 555-1212">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="phoneSubmit" type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="secretCodeDialog" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="secretCodeDialogLabel" aria-hidden="true" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="secretCodeDialogLabel">Secret Code</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+        </div>
+        <div class="modal-body">
+          <form id="phoneForm">
+            <div class="form-group">
+              <label for="secretCode">Telegram Secret Code</label>
+              <input type="tel" class="form-control" name="secretCode" id="secretCode" placeholder="+1 617 555-1212">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="codeSubmit" type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="timeMetadata">
+    <p><b>Most recent link:</b> <span id="most-recent-link"></span></p>
+    <p><b>Data current as of:</b> <span id="latest-update"></span></p>
+  </div>
+
+  <div id="feeling-lucky">
+    <button id="feeling-lucky" type="button" class="btn btn-primary">I'm Feeling Lucky</button>
+    <button id="reset-my-luck" type="button" class="btn btn-primary">Reset my Luck</button>
+  </div>
+
+  <div id="link-table">
+    <table id="links" class="display" width="100%"></table>
+  </div>
+
+
+  <!-- and our libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.3.2/luxon.min.js"
+    integrity="sha512-fcm3tvY+IeBaSiymWo7OJ+UqcY4BgPIDLr87iIys1s9yMmEKvilWMQaPb1s0HZb0M+aT+apZPAVQFrQ8DOYGlA==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+    crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/staterestore/1.1.0/js/dataTables.stateRestore.js"></script>
+
+  <!-- and finally, our scripts -->
+  <!-- replace when publishing -->
+  <script src=""jqueryPatch.js"></script>
+  <script src="colResize.js"></script>
+  <script src="gramjs.js"></script>
+
+  <script src="tagConfig.js"></script>
+  <script src="scraper.js"></script>
+  <script src="ui.js"></script>
+  <script src="main.js"></script>
+  <!-- end replace when publishing -->
+</body>
+
+</html>
